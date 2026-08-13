@@ -13,7 +13,6 @@
     "ChatMeSession": { "type": "durable-object", "storage": "sqlite" }
   },
   "vars": {
-    "OPENAI_MODEL": "gpt-5.5",
     "OPENAI_ORGANIZER_MODEL": "gpt-5-mini",
     "RECENT_MESSAGE_LIMIT": "24",
     "SUMMARY_MESSAGE_THRESHOLD": "6",
