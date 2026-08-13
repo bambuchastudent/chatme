@@ -20,7 +20,7 @@ export async function handleCommand(storage, env, message, command) {
       'ChatMe готов.',
       '',
       'Я храню нашу переписку по темам, помню контекст и могу продолжать его позже.',
-      'Меняющиеся внешние темы я проверяю раз в день и пишу только если действительно что-то поменялось.',
+      'Меняющиеся внешние темы я проверяю раз в день и обновляю их сохранённый контекст; /refresh делает проверку сразу.',
       '',
       'Команды: /topics · /memory · /new <тема> · /refresh'
     ].join('\n'), fallbackThread);
@@ -60,6 +60,7 @@ export async function handleCommand(storage, env, message, command) {
       const refresh = await refreshDynamicTopic(env, fresh);
       fresh.lastRefreshAt = new Date().toISOString();
       fresh.lastRefreshDigest = refresh.digest;
+      fresh.dailyUpdate = refresh.changed ? refresh.message : fresh.dailyUpdate || '';
       await saveTopic(storage, fresh);
       await sendText(env, chatId, refresh.changed ? refresh.message : 'Память обновлена. Существенных внешних изменений не нашёл.', fresh.telegramThreadId ?? fallbackThread);
     } else {
