@@ -4,20 +4,22 @@ import { createTelegramTopic, editTelegramTopic } from './telegram.js';
 import { listTopics, recentMessages, saveTopic, threadKey, topicKey, topicForThread } from './memory.js';
 import { normalizeTopicTitle } from './util.js';
 
-export async function createTopic(storage, env, chatId, title, refreshPolicy = 'on_change', refreshQuery = '') {
+export async function createTopic(storage, env, chatId, title, refreshPolicy = 'on_change', refreshQuery = '', existingThreadId = null) {
   const now = new Date().toISOString();
   const topic = {
-    id: crypto.randomUUID(), title: normalizeTopicTitle(title), telegramThreadId: null,
+    id: crypto.randomUUID(), title: normalizeTopicTitle(title), telegramThreadId: existingThreadId,
     summary: '', refreshPolicy, refreshQuery, sequence: 0, summarizedSequence: 0,
     createdAt: now, updatedAt: now, lastMessageAt: null, lastSummarizedAt: null,
-    lastRefreshAt: null, lastRefreshDigest: ''
+    lastRefreshAt: null, lastRefreshDigest: '', dailyUpdate: ''
   };
 
-  try {
-    const forum = await createTelegramTopic(env, chatId, topic.title);
-    if (Number.isInteger(forum?.message_thread_id)) topic.telegramThreadId = forum.message_thread_id;
-  } catch (error) {
-    if (error?.status !== 400) throw error;
+  if (topic.telegramThreadId == null) {
+    try {
+      const forum = await createTelegramTopic(env, chatId, topic.title);
+      if (Number.isInteger(forum?.message_thread_id)) topic.telegramThreadId = forum.message_thread_id;
+    } catch (error) {
+      if (error?.status !== 400) throw error;
+    }
   }
 
   const values = { [topicKey(topic.id)]: topic };
@@ -29,6 +31,10 @@ export async function createTopic(storage, env, chatId, title, refreshPolicy = '
 export async function selectTopic(storage, env, message) {
   const current = await topicForThread(storage, message.message_thread_id);
   if (current) return current;
+  if (message.message_thread_id != null) {
+    return createTopic(storage, env, message.chat.id, `Тема ${message.message_thread_id}`, 'on_change', '', message.message_thread_id);
+  }
+
   const topics = await listTopics(storage);
   const route = await organizeIncoming(env, message.text, topics);
   if (route.action === 'existing') {
