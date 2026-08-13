@@ -3,6 +3,7 @@
   "name": "chatme",
   "main": "src/index.js",
   "compatibility_date": "2026-08-13",
+  "compatibility_flags": ["nodejs_compat"],
   "d1_databases": [
     {
       "binding": "DB",
@@ -13,7 +14,7 @@
   ],
   "triggers": { "crons": ["15 6 * * *"] },
   "vars": {
-    "OPENAI_MODEL": "gpt-5",
+    "OPENAI_MODEL": "gpt-5.5",
     "OPENAI_ORGANIZER_MODEL": "gpt-5-mini",
     "DAILY_REFRESH_LIMIT": "20",
     "RECENT_MESSAGE_LIMIT": "24"
