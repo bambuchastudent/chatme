@@ -1,0 +1,13 @@
+{
+  "name": "chatme",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/index.js && node --check src/service.js && node --check src/repository.js && node --check src/openai.js && node --check src/telegram.js && node --check src/util.js && node --test",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "wrangler": "^4.71.0"
+  }
+}
