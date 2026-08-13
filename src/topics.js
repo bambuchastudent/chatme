@@ -1,4 +1,5 @@
-import { organizeIncoming, summarizeTopic } from './openai.js';
+import { organizeIncoming } from './openai.js';
+import { summarizeTopic } from './openai-memory.js';
 import { createTelegramTopic, editTelegramTopic } from './telegram.js';
 import { listTopics, recentMessages, saveTopic, threadKey, topicKey, topicForThread } from './memory.js';
 import { normalizeTopicTitle } from './util.js';
@@ -28,7 +29,6 @@ export async function createTopic(storage, env, chatId, title, refreshPolicy = '
 export async function selectTopic(storage, env, message) {
   const current = await topicForThread(storage, message.message_thread_id);
   if (current) return current;
-
   const topics = await listTopics(storage);
   const route = await organizeIncoming(env, message.text, topics);
   if (route.action === 'existing') {
@@ -50,7 +50,6 @@ export async function rebuildMemory(storage, env, topic, chatId) {
   topic.summarizedSequence = topic.sequence;
   topic.lastSummarizedAt = new Date().toISOString();
   await saveTopic(storage, topic);
-
   if (topic.telegramThreadId != null && oldTitle !== topic.title) {
     try { await editTelegramTopic(env, chatId, topic.telegramThreadId, topic.title); } catch { }
   }
