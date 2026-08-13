@@ -14,9 +14,7 @@ export async function runDailyMaintenance(storage, env, profile) {
       const refresh = await refreshDynamicTopic(env, topic);
       topic.lastRefreshAt = new Date().toISOString();
       topic.lastRefreshDigest = refresh.digest;
-      if (refresh.changed && refresh.message) {
-        topic.summary = `${topic.summary}\n\nПоследнее внешнее обновление: ${refresh.message}`.trim();
-      }
+      if (refresh.changed && refresh.message) topic.dailyUpdate = refresh.message;
       await saveTopic(storage, topic);
     } catch (error) {
       console.error('maintenance error', topic.id, error);
