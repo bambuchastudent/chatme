@@ -20,9 +20,9 @@ export async function handleCommand(storage, env, message, command) {
       'ChatMe готов.',
       '',
       'Я храню нашу переписку по темам, помню контекст и могу продолжать его позже.',
-      'Меняющиеся внешние темы я проверяю раз в день и обновляю их сохранённый контекст; /refresh делает проверку сразу.',
+      'Меняющиеся внешние темы я проверяю раз в день. /watch включает уведомления об изменениях для текущей темы.',
       '',
-      'Команды: /topics · /memory · /new <тема> · /refresh'
+      'Команды: /topics · /memory · /new <тема> · /refresh · /watch · /unwatch'
     ].join('\n'), fallbackThread);
     return;
   }
@@ -30,7 +30,7 @@ export async function handleCommand(storage, env, message, command) {
   if (command.name === 'topics') {
     const topics = await listTopics(storage);
     const text = topics.length
-      ? ['Темы:', ...topics.slice(0, 30).map((topic, index) => `${index + 1}. ${topic.title}${topic.refreshPolicy === 'daily' ? ' · ↻ daily' : ''}`)].join('\n')
+      ? ['Темы:', ...topics.slice(0, 30).map((topic, index) => `${index + 1}. ${topic.title}${topic.refreshPolicy === 'daily' ? ' · ↻ daily' : ''}${topic.notifyOnChange ? ' · 🔔' : ''}`)].join('\n')
       : 'Тем пока нет. Просто напиши мне что-нибудь.';
     await sendText(env, chatId, text, fallbackThread);
     return;
@@ -45,6 +45,13 @@ export async function handleCommand(storage, env, message, command) {
   const topic = await currentTopic(storage, message);
   if (!topic) {
     await sendText(env, chatId, 'Сначала нужна хотя бы одна тема.', fallbackThread);
+    return;
+  }
+
+  if (command.name === 'watch' || command.name === 'unwatch') {
+    topic.notifyOnChange = command.name === 'watch';
+    await saveTopic(storage, topic);
+    await sendText(env, chatId, topic.notifyOnChange ? 'Уведомления об изменениях этой темы включены.' : 'Уведомления об изменениях этой темы выключены.', topic.telegramThreadId ?? fallbackThread);
     return;
   }
 
@@ -69,5 +76,5 @@ export async function handleCommand(storage, env, message, command) {
     return;
   }
 
-  await sendText(env, chatId, 'Не знаю такую команду. Есть /topics, /memory, /new и /refresh.', fallbackThread);
+  await sendText(env, chatId, 'Не знаю такую команду. Есть /topics, /memory, /new, /refresh, /watch и /unwatch.', fallbackThread);
 }
