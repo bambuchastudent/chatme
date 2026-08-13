@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "chatme",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      { "name": "CHAT_SESSIONS", "class_name": "ChatMeSession" }
+    ]
+  },
+  "exports": {
+    "ChatMeSession": { "type": "durable-object", "storage": "sqlite" }
+  },
+  "vars": {
+    "OPENAI_ORGANIZER_MODEL": "gpt-5-mini",
+    "RECENT_MESSAGE_LIMIT": "24",
+    "SUMMARY_MESSAGE_THRESHOLD": "6",
+    "DAILY_REFRESH_HOUR_UTC": "6"
+  }
+}

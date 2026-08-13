@@ -1,0 +1,19 @@
+{
+  "name": "chatme",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "check": "find src -name '*.js' -print0 | xargs -0 -n1 node --check && node --test",
+    "test": "node --test",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "openai": "7.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.71.0"
+  }
+}
